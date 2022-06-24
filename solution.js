@@ -32,118 +32,118 @@ Output:"1:44,2:25,3:30,4:41,5:20,12:33,18:27"
 */
 
 // sample of arr: ["1:[5]", "2:[5,18]", "3:[5,12]", "4:[5]", "5:[1,2,3,4]", "18:[2]", "12:[3]"]
-function parseNodesAndEdges(arr){
-  var nodes = []
-  var edges = []
+function parseNodesAndEdges(arr) {
+    let nodes = []
+    let edges = []
 
-  for (var el of arr){
-    var splitEL = el.split(':[')
-    var node = parseInt(splitEL[0])
-    nodes.push(node)
-    var splitEdges = splitEL[1].replace(']').split(',')
-    for (var edge of splitEdges){
-      edges.push([node, parseInt(edge)])
+    for (let el of arr) {
+        let splitEL = el.split(':[')
+        let node = parseInt(splitEL[0])
+        nodes.push(node)
+        let splitEdges = splitEL[1].replace(']').split(',')
+        for (let edge of splitEdges) {
+            edges.push([node, parseInt(edge)])
+        }
     }
-  }
-  return [nodes, edges]
+    return [nodes, edges]
 }
 
 
-function createAdjacencyList(nodesAndEdges){
-  var nodes = nodesAndEdges[0]
-  var edges = nodesAndEdges[1]
-  var adjacencyList = new Map()
+function createAdjacencyList(nodesAndEdges) {
+    let nodes = nodesAndEdges[0]
+    let edges = nodesAndEdges[1]
+    let adjacencyList = new Map()
 
-  for (var node of nodes){
-    adjacencyList.set(node, [])
-  }
+    for (let node of nodes) {
+        adjacencyList.set(node, [])
+    }
 
-  for (var edge of edges) {
-    var mainCity = edge[0]
-    var neighborCity = edge[1]
-    adjacencyList.get(mainCity).push(neighborCity)
-  }
+    for (let edge of edges) {
+        let mainCity = edge[0]
+        let neighborCity = edge[1]
+        adjacencyList.get(mainCity).push(neighborCity)
+    }
 
-  return adjacencyList
+    return adjacencyList
 }
 
 // visited is not created as new set on first call
 // as is normal - instead it is going to be created
 // prior to first iteration - once for each first level edge
-function depthFirstSearch(currentCity, adjacencyList, visited){
-  visited.add(currentCity)
-  var neighboringCities = adjacencyList.get(currentCity)
-  for (var neighborCity of neighboringCities){
-    if (!visited.has(neighborCity)){
-      depthFirstSearch(neighborCity, adjacencyList, visited)
+function depthFirstSearch(currentCity, adjacencyList, visited) {
+    visited.add(currentCity)
+    let neighboringCities = adjacencyList.get(currentCity)
+    for (let neighborCity of neighboringCities) {
+        if (!visited.has(neighborCity)) {
+            depthFirstSearch(neighborCity, adjacencyList, visited)
+        }
     }
-  }
-  return visited
+    return visited
 }
 
-function getEdgePaths(el, adjacencyList){
-  var mainCity = el[0]
-  var neighboringCities = el[1]
-  // This is where things get weird ...
-  // The algo will iterate BUT only past first city ...
-  var visited = {}
-  for (var neighborCity of neighboringCities){
-    visited[neighborCity] = new Set()
-    visited[neighborCity].add(mainCity)
-    var travelledCitiesSet = depthFirstSearch(neighborCity, adjacencyList, visited[neighborCity])
-    var travelledCitiesArr = Array.from(travelledCitiesSet)
-    visited[neighborCity] = travelledCitiesArr.slice(1)
-  }
-  return visited
-}
-
-function getEdgeSums(edgePaths){
-  for (var edge in edgePaths){
-    var sum = 0
-    for (var population of edgePaths[edge]){
-      sum += population
+function getEdgePaths(el, adjacencyList) {
+    let mainCity = el[0]
+    let neighboringCities = el[1]
+    // This is where things get weird ...
+    // The algo will iterate BUT only past first city ...
+    let visited = {}
+    for (let neighborCity of neighboringCities) {
+        visited[neighborCity] = new Set()
+        visited[neighborCity].add(mainCity)
+        let travelledCitiesSet = depthFirstSearch(neighborCity, adjacencyList, visited[neighborCity])
+        let travelledCitiesArr = Array.from(travelledCitiesSet)
+        visited[neighborCity] = travelledCitiesArr.slice(1)
     }
-    edgePaths[edge] = sum
-  }
-  return edgePaths
+    return visited
+}
+
+function getEdgeSums(edgePaths) {
+    for (let edge in edgePaths) {
+        let sum = 0
+        for (let population of edgePaths[edge]) {
+            sum += population
+        }
+        edgePaths[edge] = sum
+    }
+    return edgePaths
 }
 
 
-function getEdgeMax(edgeSums){
-  var values = Object.values(edgeSums)
-  var max = Math.max(...values)
-  return max
+function getEdgeMax(edgeSums) {
+    let values = Object.values(edgeSums)
+    let max = Math.max(...values)
+    return max
 }
 
 
-function getAnserObj(adjacencyList){
-  var answerObj = {}
-  for (var el of adjacencyList) {
-    var edgePaths = getEdgePaths(el, adjacencyList)
-    var edgeSums = getEdgeSums(edgePaths)
-    var edgeMax = getEdgeMax(edgeSums)
-    answerObj[`${el[0]}`] = `${edgeMax}`
-  }
-  return answerObj
+function getAnserObj(adjacencyList) {
+    let answerObj = {}
+    for (let el of adjacencyList) {
+        let edgePaths = getEdgePaths(el, adjacencyList)
+        let edgeSums = getEdgeSums(edgePaths)
+        let edgeMax = getEdgeMax(edgeSums)
+        answerObj[`${el[0]}`] = `${edgeMax}`
+    }
+    return answerObj
 }
 
-function getFormattedAnswer(answerObj){
-  var formattedAnswer = ''
-  var sortedKeys = Object.keys(answerObj).sort(function(a,b){return a - b})
-  for (var key of sortedKeys){
-    var value = answerObj[key]
-    formattedAnswer += `${key}:${value},`
-  }
-  return formattedAnswer.slice(0, formattedAnswer.length - 1)
+function getFormattedAnswer(answerObj) {
+    let formattedAnswer = ''
+    let sortedKeys = Object.keys(answerObj).sort(function (a, b) { return a - b })
+    for (let key of sortedKeys) {
+        let value = answerObj[key]
+        formattedAnswer += `${key}:${value},`
+    }
+    return formattedAnswer.slice(0, formattedAnswer.length - 1)
 }
 
-function CityTraffic(arr) { 
-  var nodesAndEdges = parseNodesAndEdges(arr)
-  var adjacencyList = createAdjacencyList(nodesAndEdges)
-  var answerObj = getAnserObj(adjacencyList)
-  var formattedAnswer = getFormattedAnswer(answerObj)
-  return formattedAnswer
+function CityTraffic(arr) {
+    let nodesAndEdges = parseNodesAndEdges(arr)
+    let adjacencyList = createAdjacencyList(nodesAndEdges)
+    let answerObj = getAnserObj(adjacencyList)
+    let formattedAnswer = getFormattedAnswer(answerObj)
+    return formattedAnswer
 }
-   
+
 // keep this function call here 
 console.log(CityTraffic(readline()))
